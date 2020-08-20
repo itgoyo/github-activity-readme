@@ -1,8 +1,12 @@
 const core = require("@actions/core");
 const fs = require("fs");
 const path = require("path");
-const { spawn } = require("child_process");
-const { Toolkit } = require("actions-toolkit");
+const {
+  spawn
+} = require("child_process");
+const {
+  Toolkit
+} = require("actions-toolkit");
 
 const MAX_LINES = 5;
 
@@ -26,9 +30,9 @@ const urlPrefix = "https://github.com/";
 
 const toUrlFormat = (item) => {
   if (typeof item === "object") {
-    return Object.hasOwnProperty.call(item.payload, "issue")
-      ? `[#${item.payload.issue.number}](${urlPrefix}/${item.repo.name}/issues/${item.payload.issue.number})`
-      : `[#${item.payload.pull_request.number}](${urlPrefix}/${item.repo.name}/pull/${item.payload.pull_request.number})`;
+    return Object.hasOwnProperty.call(item.payload, "issue") ?
+      `[#${item.payload.issue.number}](${urlPrefix}/${item.repo.name}/issues/${item.payload.issue.number})` :
+      `[#${item.payload.pull_request.number}](${urlPrefix}/${item.repo.name}/pull/${item.payload.pull_request.number})`;
   }
   return `[${item}](${urlPrefix}/${item})`;
 };
@@ -43,7 +47,9 @@ const toUrlFormat = (item) => {
 
 const exec = (cmd, args = []) =>
   new Promise((resolve, reject) => {
-    const app = spawn(cmd, args, { stdio: "inherit" });
+    const app = spawn(cmd, args, {
+      stdio: "inherit"
+    });
     app.on("close", (code) => {
       if (code !== 0) {
         err = new Error(`Invalid status code: ${code}`);
@@ -80,7 +86,7 @@ const commitFile = async () => {
 
 const serializers = {
   IssueCommentEvent: (item) => {
-    return `🗣 Commented on ${toUrlFormat(item)} in ${toUrlFormat(
+    return `💻 Commented on ${toUrlFormat(item)} in ${toUrlFormat(
       item.repo.name
     )}`;
   },
@@ -91,9 +97,9 @@ const serializers = {
   },
   PullRequestEvent: (item) => {
     const emoji = item.payload.action === "opened" ? "💪" : "❌";
-    const line = item.payload.pull_request.merged
-      ? "🎉 Merged"
-      : `${emoji} ${capitalize(item.payload.action)}`;
+    const line = item.payload.pull_request.merged ?
+      "🎉 Merged" :
+      `${emoji} ${capitalize(item.payload.action)}`;
     return `${line} PR ${toUrlFormat(item)} in ${toUrlFormat(item.repo.name)}`;
   },
 };
@@ -223,8 +229,7 @@ Toolkit.run(
       return tools.exit.failure(err);
     }
     tools.exit.success("Pushed to remote repository");
-  },
-  {
+  }, {
     event: ["schedule", "workflow_dispatch"],
     secrets: ["GITHUB_TOKEN"],
   }
